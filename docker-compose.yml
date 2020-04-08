@@ -1,0 +1,40 @@
+version: "3"
+services:
+  base_image:
+    build: .
+    image: forward-proxy-exercise:latest
+  squid:
+    image: forward-proxy-exercise:latest
+    command: bash -c "squid && while :; do sleep 5; done"
+    tty: true
+    volumes:
+      - "./config/squid:/etc/squid"
+    depends_on:
+      - base_image
+    networks:
+      - squid-internal
+  envoy:
+    image: forward-proxy-exercise:latest
+    command: getenvoy run standard:1.13.1 -- --config-path /etc/envoy/config.yaml
+    tty: true
+    volumes:
+      - "./config/envoy:/etc/envoy"
+    depends_on:
+      - base_image
+    networks:
+      - envoy-internal
+  client:
+    image: forward-proxy-exercise:latest
+    depends_on:
+      - base_image
+    depends_on:
+      - squid
+      - envoy
+    networks:
+      - envoy-internal
+      - squid-internal
+
+networks:
+  envoy-internal:
+  squid-internal:
+
