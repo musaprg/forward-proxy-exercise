@@ -41,6 +41,37 @@ static_resources:
               config:
                 path: /dev/stdout
           http_filters:
+          - name: envoy.lua
+            typed_config:
+              "@type": type.googleapis.com/envoy.config.filter.http.lua.v2.Lua
+              inline_code: |
+                -- Called on the request path.
+                function envoy_on_request(request_handle)
+                  -- Whitelist patterns
+                  local allowed_patterns = {
+                    "^%w*%.?google%.com",
+                    "^%w*%.?google%.co%.jp"
+                  }
+
+                  local headers = request_handle:headers()
+                  local upstream_host = headers:get(":authority")
+
+                  for _,pattern in ipairs(allowed_patterns) do
+                    if string.match(upstream_host, pattern) then
+                      -- If requested upstream host is in the whiltelist, then accept
+                      return
+                    end
+                  end
+
+                  -- If requested upstream is not in the whiltelist, then deny
+                  request_handle:respond(
+                    {[":status"] = "403"},
+                    "Access denied.")
+                end
+
+                -- Called on the response path.
+                function envoy_on_response(response_handle)
+                end
           - name: envoy.filters.http.dynamic_forward_proxy
             typed_config:
               "@type": type.googleapis.com/envoy.config.filter.http.dynamic_forward_proxy.v2alpha.FilterConfig
