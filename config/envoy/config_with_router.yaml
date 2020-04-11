@@ -39,7 +39,7 @@ static_resources:
                     safe_regex_match:
                       google_re2:
                         max_program_size:
-                      regex: '\w*\.?google\.com'
+                      regex: '^\w*\.?google\.com'
                 route:
                   cluster: dynamic_forward_proxy_cluster
               - match:
@@ -49,7 +49,7 @@ static_resources:
                     safe_regex_match:
                       google_re2:
                         max_program_size:
-                      regex: '\w*\.?google\.co\.jp'
+                      regex: '^\w*\.?google\.co\.jp'
                 route:
                   cluster: dynamic_forward_proxy_cluster
           access_log:
