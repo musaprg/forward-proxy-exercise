@@ -15,8 +15,8 @@ services:
       - squid-internal
   envoy:
     image: forward-proxy-exercise:latest
-    #command: getenvoy run standard:1.13.1 -- --config-path /etc/envoy/config.yaml --component-log-level upstream:debug,connection:trace
-    command: getenvoy run standard:1.13.1 -- --config-path /etc/envoy/config.yaml
+    #command: getenvoy run standard:1.13.1 -- --config-path /etc/envoy/config_with_lua.yaml
+    command: getenvoy run standard:1.13.1 -- --config-path /etc/envoy/config_with_router.yaml
     tty: true
     volumes:
       - "./config/envoy:/etc/envoy"
