@@ -41,6 +41,31 @@ static_resources:
               config:
                 path: /dev/stdout
           http_filters:
+          - name: envoy.filters.http.rbac
+            typed_config:
+              "@type": type.googleapis.com/envoy.config.filter.http.rbac.v2.RBAC
+              rules:
+                action: ALLOW
+                policies:
+                  "internal-access":
+                    permissions:
+                      - any: true
+                    principals:
+                      - source_ip: # RFC1918 possible internal network
+                          address_prefix: "10.0.0.0"
+                          prefix_len: 8
+                      - source_ip: # RFC1918 possible internal network
+                          address_prefix: "172.16.0.0"
+                          prefix_len: 12
+                      - source_ip: # RFC1918 possible internal network
+                          address_prefix: "192.168.0.0"
+                          prefix_len: 16
+                      - source_ip: # RFC 4193 local private network range
+                          address_prefix: "fc00::"
+                          prefix_len: 7
+                      - source_ip: # RFC 4291 link-local (directly plugged) machines
+                          address_prefix: "fe80::"
+                          prefix_len: 10
           - name: envoy.lua
             typed_config:
               "@type": type.googleapis.com/envoy.config.filter.http.lua.v2.Lua
